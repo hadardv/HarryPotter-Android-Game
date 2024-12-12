@@ -1,19 +1,18 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
+    android:orientation="vertical"
     android:background="@color/background">
 
-    <!-- Top Hearts -->
+    <!-- Hearts -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_margin="16dp"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:gravity="center_horizontal"
+        android:layout_margin="16dp">
         <ImageView
             android:id="@+id/main_IMG_heart1"
             android:layout_width="40dp"
@@ -33,41 +32,35 @@
             android:src="@drawable/heart" />
     </LinearLayout>
 
-    <!-- Game Grid -->
+    <!-- GridLayout -->
     <GridLayout
         android:id="@+id/main_grid"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_margin="16dp"
-        android:layout_below="@id/main_IMG_heart1"
-        android:layout_above="@+id/main_BTN_leftArrow"
+        android:layout_weight="1"
         android:rowCount="8"
         android:columnCount="3"
-        android:layout_weight="1"
-        tools:ignore="NotSibling">
-    </GridLayout>
+         />
 
-    <!-- Left Button -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/main_BTN_leftArrow"
-        android:layout_width="wrap_content"
+    <!-- Controls -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="16dp"
-        android:layout_marginBottom="16dp"
-        app:srcCompat="@drawable/arrow_left_svgrepo_com" />
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:layout_margin="16dp">
 
-    <!-- Right Button -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/main_BTN_rightArrow"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        app:srcCompat="@drawable/arrow_right_svgrepo_com" />
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/main_BTN_leftArrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            app:srcCompat="@drawable/arrow_left_svgrepo_com" />
 
-
-</RelativeLayout>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/main_BTN_rightArrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/arrow_right_svgrepo_com" />
+    </LinearLayout>
+</LinearLayout>
