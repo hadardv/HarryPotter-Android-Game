@@ -66,7 +66,7 @@ class GameManager(private val gridLayout: GridLayout,
                 if (!isGameRunning) return
 
                 moveVoldemortDown()
-                checkCollision()
+                //checkCollision()
                 spawnVoldemorts()
 
                 handler.postDelayed(this, 1000)
@@ -93,6 +93,11 @@ class GameManager(private val gridLayout: GridLayout,
                 if (currentCell.tag == "voldemort") {
                     val newCell = grid[row + 1][col]
 
+                    if (newCell.tag == "voldemort") {
+                        continue
+                    }
+
+
                     // Handle Voldemorts moving to row 7
                     if (row + 1 == rows - 1) {
                         // Clear Voldemort if it's at row 7
@@ -101,12 +106,16 @@ class GameManager(private val gridLayout: GridLayout,
                             setImageResource(0)
                             tag = null
                         }
+
                         newCell.apply {
-                            visibility = View.INVISIBLE
-                            setImageResource(0)
+                            tag = "voldemort"
+                        }
+                        checkCollision()
+                        newCell.apply {
                             tag = null
                         }
                         continue
+
                     }
 
                     // Move Voldemort down
@@ -122,6 +131,7 @@ class GameManager(private val gridLayout: GridLayout,
                         setImageResource(0)
                         tag = null
                     }
+
                 }
             }
         }
@@ -156,11 +166,13 @@ class GameManager(private val gridLayout: GridLayout,
 
             Toast.makeText(context, "Voldemort hit Harry!", Toast.LENGTH_SHORT).show()
 
-            // Clear Voldemort
             harryCell.apply {
-                visibility = View.INVISIBLE
-                setImageResource(0)
                 tag = null
+            }
+
+            harryCell.apply {
+                visibility = View.VISIBLE
+                setImageResource(R.drawable.harry)
             }
 
             // End game if no lives are left
