@@ -1,9 +1,9 @@
 package logic
 
 import android.content.Context
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.View
 import android.widget.GridLayout
 import android.widget.ImageView
@@ -12,6 +12,10 @@ import androidx.appcompat.widget.AppCompatImageView
 import com.example.harrypottergame.R
 import kotlinx.coroutines.Runnable
 import kotlin.random.Random
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
+
 
 class GameManager(private val gridLayout: GridLayout,
                   private val hearts: Array<AppCompatImageView>,
@@ -31,6 +35,7 @@ class GameManager(private val gridLayout: GridLayout,
         initializeGrid()
     }
 
+    // Initializing the game grid with harry in the middle lane and putting imageView in each cell of the matrix
     private fun initializeGrid() {
         for (row in 0 until rows) {
             for (col in 0 until cols) {
@@ -40,13 +45,14 @@ class GameManager(private val gridLayout: GridLayout,
             }
         }
 
-        // Set Harry's initial position
         grid[rows - 1][harryLane].apply {
             visibility = View.VISIBLE
             setImageResource(R.drawable.harry)
         }
     }
 
+    // function to actually create each cell in the matrix to have AppCompatImageView
+    //to be ready to hold voldemort's picture
     private fun createGridCell(): AppCompatImageView {
         return AppCompatImageView(context).apply {
             layoutParams = GridLayout.LayoutParams().apply {
@@ -60,20 +66,21 @@ class GameManager(private val gridLayout: GridLayout,
         }
     }
 
+    // each 1 second brings voldemort one cell down and new voldemorts come down randomly
     fun startGame() {
         handler.postDelayed(object : Runnable {
             override fun run() {
                 if (!isGameRunning) return
 
                 moveVoldemortDown()
-                //checkCollision()
-                spawnVoldemorts()
+                newVoldemorts()
 
                 handler.postDelayed(this, 1000)
             }
         }, 1000)
     }
 
+    // a function to move harry left or right
     fun moveHarry(index: Int) {
         grid[rows - 1][harryLane].apply {
             visibility = View.INVISIBLE
@@ -86,6 +93,7 @@ class GameManager(private val gridLayout: GridLayout,
         }
     }
 
+    // a function to move an existing voldemort image one cell down until row 7
     fun moveVoldemortDown() {
         for (row in rows - 2 downTo 0) { // Start from the second last row and move up
             for (col in 0 until cols) {
@@ -98,9 +106,9 @@ class GameManager(private val gridLayout: GridLayout,
                     }
 
 
-                    // Handle Voldemorts moving to row 7
+                    // if voldemort reaches row 7
                     if (row + 1 == rows - 1) {
-                        // Clear Voldemort if it's at row 7
+                        // Clear voldemort if it's at row 7
                         currentCell.apply {
                             visibility = View.INVISIBLE
                             setImageResource(0)
@@ -115,7 +123,6 @@ class GameManager(private val gridLayout: GridLayout,
                             tag = null
                         }
                         continue
-
                     }
 
                     // Move Voldemort down
@@ -137,8 +144,9 @@ class GameManager(private val gridLayout: GridLayout,
         }
     }
 
-    fun spawnVoldemorts() {
-        val voldemortCount = Random.nextInt(1, 2) // Random number of Voldemorts
+    // bring down voldemorts randomly
+    fun newVoldemorts() {
+        val voldemortCount = Random.nextInt(0, 2)
         val positions = (0 until cols).shuffled().take(voldemortCount)
 
         for (col in positions) {
@@ -155,15 +163,14 @@ class GameManager(private val gridLayout: GridLayout,
         }
     }
 
-
+//checking if voldemort and harry collied
     fun checkCollision() {
         val harryCell = grid[rows - 1][harryLane]
-
         // Check if the Voldemort's tag is in Harry's lane
         if (harryCell.tag == "voldemort") {
-            lives-- // Reduce lives
+            lives--
             updateLives()
-
+            triggerVibration()
             Toast.makeText(context, "Voldemort hit Harry!", Toast.LENGTH_SHORT).show()
 
             harryCell.apply {
@@ -175,7 +182,6 @@ class GameManager(private val gridLayout: GridLayout,
                 setImageResource(R.drawable.harry)
             }
 
-            // End game if no lives are left
             if (lives <= 0) {
                 endGame()
             }
@@ -192,5 +198,46 @@ class GameManager(private val gridLayout: GridLayout,
         isGameRunning = false
         handler.removeCallbacksAndMessages(null)
         Toast.makeText(context, "Voldemort killed Harry :(", Toast.LENGTH_SHORT).show()
+
+        handler.postDelayed({
+            resetGame()
+        }, 2000)
+    }
+
+    private fun triggerVibration() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // API 31 and above
+            val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+            val vibrator = vibratorManager.defaultVibrator
+            val vibrationEffect = VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE)
+            vibrator.vibrate(vibrationEffect)
+        } else { // Below API 31
+            @Suppress("DEPRECATION") // Suppress deprecation warning for older APIs
+            val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+            val vibrationEffect = VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE)
+            vibrator.vibrate(vibrationEffect)
+        }
+    }
+    //to start the game all over again after voldemort killed harry we reset the game's settings
+
+    private fun resetGame() {
+        for (row in 0 until rows) {
+            for (col in 0 until cols) {
+                grid[row][col].apply {
+                    visibility = View.INVISIBLE
+                    setImageResource(0)
+                    tag = null
+                }
+            }
+        }
+        harryLane = 1
+        grid[rows - 1][harryLane].apply {
+            visibility = View.VISIBLE
+            setImageResource(R.drawable.harry)
+        }
+
+        lives = 3
+        updateLives()
+        isGameRunning = true
+        startGame()
     }
 }
