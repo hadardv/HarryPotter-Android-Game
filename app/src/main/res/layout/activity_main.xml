@@ -12,23 +12,23 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_horizontal"
-        android:layout_margin="16dp">
+        android:layout_margin="@dimen/default_margin">
         <ImageView
             android:id="@+id/main_IMG_heart1"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="@dimen/heart_dimens"
+            android:layout_height="@dimen/heart_dimens"
             android:src="@drawable/heart" />
         <ImageView
             android:id="@+id/main_IMG_heart2"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="8dp"
+            android:layout_width="@dimen/heart_dimens"
+            android:layout_height="@dimen/heart_dimens"
+            android:layout_marginStart="@dimen/heart_margin"
             android:src="@drawable/heart" />
         <ImageView
             android:id="@+id/main_IMG_heart3"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="8dp"
+            android:layout_width="@dimen/heart_dimens"
+            android:layout_height="@dimen/heart_dimens"
+            android:layout_marginStart="@dimen/heart_margin"
             android:src="@drawable/heart" />
     </LinearLayout>
 
@@ -48,13 +48,13 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="horizontal"
-        android:layout_margin="16dp">
+        android:layout_margin="@dimen/default_margin">
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/main_BTN_leftArrow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
+            android:layout_marginEnd="@dimen/default_margin"
             app:srcCompat="@drawable/arrow_left_svgrepo_com" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton

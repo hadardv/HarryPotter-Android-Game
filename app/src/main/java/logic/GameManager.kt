@@ -75,9 +75,9 @@ class GameManager(private val gridLayout: GridLayout,
                 moveVoldemortDown()
                 newVoldemorts()
 
-                handler.postDelayed(this, 1000)
+                handler.postDelayed(this,800)
             }
-        }, 1000)
+        }, 800)
     }
 
     // a function to move harry left or right
