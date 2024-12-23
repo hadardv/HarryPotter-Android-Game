@@ -66,7 +66,7 @@ class GameManager(private val gridLayout: GridLayout,
         }
     }
 
-    // each 1 second brings voldemort one cell down and new voldemorts come down randomly
+    // each 800 ms brings voldemort one cell down and new voldemorts come down randomly
     fun startGame() {
         handler.postDelayed(object : Runnable {
             override fun run() {
