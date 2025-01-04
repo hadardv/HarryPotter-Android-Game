@@ -24,9 +24,9 @@ class GameManager(private val gridLayout: GridLayout,
     private var handler = Handler(Looper.getMainLooper())
     private var isGameRunning = true
     private var lives = 3
-    private var harryLane = 1
+    private var harryLane = 2
     private val rows = 8
-    private val cols = 3
+    private val cols = 5
     private val grid: Array<Array<AppCompatImageView>> = Array(rows) {
         Array(cols) { AppCompatImageView(context) }
     }
