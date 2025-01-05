@@ -19,11 +19,21 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        val mode = intent.getStringExtra("mode") ?: "arrow"
+        val speed = intent.getStringExtra("speed") ?: "slow"
+
         findViews()
         initViews()
 
+
         gameManager = GameManager(gridLayout, hearts, this)
-        gameManager.startGame()
+        if (mode == "arrow") {
+            gameManager.setSpeed(if (speed == "fast") 500 else 800)
+            gameManager.startGame()
+        } else if (mode == "sensor") {
+            // TODO: Implement sensor mode
+        }
+
     }
 
     private fun findViews() {

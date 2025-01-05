@@ -25,8 +25,9 @@ class GameManager(private val gridLayout: GridLayout,
     private var isGameRunning = true
     private var lives = 3
     private var harryLane = 2
-    private val rows = 8
+    private val rows = 10
     private val cols = 5
+    private var gameSpeed: Long = 800
     private val grid: Array<Array<AppCompatImageView>> = Array(rows) {
         Array(cols) { AppCompatImageView(context) }
     }
@@ -66,7 +67,10 @@ class GameManager(private val gridLayout: GridLayout,
         }
     }
 
-    // each 800 ms brings voldemort one cell down and new voldemorts come down randomly
+    fun setSpeed(speed: Long) {
+        gameSpeed = speed
+    }
+
     fun startGame() {
         handler.postDelayed(object : Runnable {
             override fun run() {
@@ -75,9 +79,9 @@ class GameManager(private val gridLayout: GridLayout,
                 moveVoldemortDown()
                 newVoldemorts()
 
-                handler.postDelayed(this,800)
+                handler.postDelayed(this,gameSpeed)
             }
-        }, 800)
+        }, gameSpeed)
     }
 
     // a function to move harry left or right
