@@ -1,19 +1,24 @@
 package com.example.harrypottergame
 
 import android.os.Bundle
+import android.view.View
 import android.widget.GridLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import interfaces.TiltCallback
 import logic.GameManager
+import utilities.TiltDetector
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), TiltCallback {
 
     private lateinit var main_BTN_leftArrow: FloatingActionButton
     private lateinit var main_BTN_rightArrow: FloatingActionButton
     private lateinit var hearts: Array<AppCompatImageView>
     private lateinit var gameManager: GameManager
     private lateinit var gridLayout: GridLayout
+
+    private var tiltDetector: TiltDetector? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,10 +36,38 @@ class MainActivity : AppCompatActivity() {
             gameManager.setSpeed(if (speed == "fast") 500 else 800)
             gameManager.startGame()
         } else if (mode == "sensor") {
-            // TODO: Implement sensor mode
-        }
+            main_BTN_rightArrow.visibility = View.GONE
+            main_BTN_leftArrow.visibility = View.GONE
 
+            // if the selected mode is sensor mode, the sensor detection begin working
+            tiltDetector = TiltDetector(this,this)
+            tiltDetector?.start()
+
+        }
     }
+
+    override fun tiltRight() {
+        if (gameManager.harryLane < 4) {
+            gameManager.moveHarry(gameManager.harryLane + 1)
+        }
+    }
+
+    override fun tiltLeft() {
+        if (gameManager.harryLane > 0) {
+            gameManager.moveHarry(gameManager.harryLane - 1)
+        }
+    }
+
+    override fun tiltCenter() {
+        gameManager.moveHarry(2) // Move Harry to the center lane
+    }
+
+
+    override fun onDestroy() {
+        super.onDestroy()
+        tiltDetector?.stop()
+    }
+
 
     private fun findViews() {
         main_BTN_leftArrow = findViewById(R.id.main_BTN_leftArrow)

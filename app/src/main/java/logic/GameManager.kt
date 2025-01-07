@@ -24,7 +24,7 @@ class GameManager(private val gridLayout: GridLayout,
     private var handler = Handler(Looper.getMainLooper())
     private var isGameRunning = true
     private var lives = 3
-    private var harryLane = 2
+    var harryLane = 2
     private val rows = 10
     private val cols = 5
     private var gameSpeed: Long = 800
@@ -85,17 +85,26 @@ class GameManager(private val gridLayout: GridLayout,
     }
 
     // a function to move harry left or right
-    fun moveHarry(index: Int) {
+    fun moveHarry(newLane: Int) {
+        // Ensure the new lane is within bounds
+        if (newLane < 0 || newLane >= cols) return
+
+        // Hide Harry in the current lane
         grid[rows - 1][harryLane].apply {
             visibility = View.INVISIBLE
             setImageResource(0)
         }
-        harryLane = (harryLane + index).coerceIn(0, cols - 1)
+
+        // Update Harry’s lane position
+        harryLane = newLane
+
+        // Show Harry in the new lane
         grid[rows - 1][harryLane].apply {
             visibility = View.VISIBLE
             setImageResource(R.drawable.harry)
         }
     }
+
 
     // a function to move an existing voldemort image one cell down until row 7
     fun moveVoldemortDown() {
