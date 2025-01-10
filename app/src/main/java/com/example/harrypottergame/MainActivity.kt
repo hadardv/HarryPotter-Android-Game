@@ -1,8 +1,10 @@
 package com.example.harrypottergame
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.GridLayout
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -17,12 +19,18 @@ class MainActivity : AppCompatActivity(), TiltCallback {
     private lateinit var hearts: Array<AppCompatImageView>
     private lateinit var gameManager: GameManager
     private lateinit var gridLayout: GridLayout
+    private lateinit var main_TXT_score: TextView
+
 
     private var tiltDetector: TiltDetector? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+            Log.e("Unhandled Exception", "Exception in thread: ${thread.name}", throwable)
+        }
 
         val mode = intent.getStringExtra("mode") ?: "arrow"
         val speed = intent.getStringExtra("speed") ?: "slow"
@@ -31,7 +39,7 @@ class MainActivity : AppCompatActivity(), TiltCallback {
         initViews()
 
 
-        gameManager = GameManager(gridLayout, hearts, this)
+        gameManager = GameManager(gridLayout, hearts,main_TXT_score, this)
         if (mode == "arrow") {
             gameManager.setSpeed(if (speed == "fast") 500 else 800)
             gameManager.startGame()
@@ -42,6 +50,7 @@ class MainActivity : AppCompatActivity(), TiltCallback {
             // if the selected mode is sensor mode, the sensor detection begin working
             tiltDetector = TiltDetector(this,this)
             tiltDetector?.start()
+            gameManager.startGame()
 
         }
     }
@@ -74,18 +83,26 @@ class MainActivity : AppCompatActivity(), TiltCallback {
         main_BTN_rightArrow = findViewById(R.id.main_BTN_rightArrow)
         hearts = arrayOf(
             findViewById(R.id.main_IMG_heart1),
+
             findViewById(R.id.main_IMG_heart2),
             findViewById(R.id.main_IMG_heart3)
         )
         gridLayout = findViewById(R.id.main_grid)
+        main_TXT_score = findViewById(R.id.main_TXT_score)
+
     }
 
     private fun initViews() {
         main_BTN_leftArrow.setOnClickListener {
-            gameManager.moveHarry(-1) // Move Harry left
+            if (gameManager.harryLane > 0) {
+                gameManager.moveHarry(gameManager.harryLane - 1) // Move Harry left
+            }
         }
         main_BTN_rightArrow.setOnClickListener {
-            gameManager.moveHarry(1) // Move Harry right
+            if (gameManager.harryLane < 4) {
+                gameManager.moveHarry(gameManager.harryLane + 1) // Move Harry right
+            }
         }
     }
+
 }

@@ -15,6 +15,7 @@ class MenuActivity : AppCompatActivity() {
     private lateinit var menu_BTN_fast: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_menu)
 

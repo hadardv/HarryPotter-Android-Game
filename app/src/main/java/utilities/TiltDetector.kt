@@ -18,8 +18,6 @@ class TiltDetector (context: Context, private val tiltCallback: TiltCallback?) {
             if (event == null) return
 
             val xValue = event.values[0]
-
-            // Use if-else instead of when to determine the new lane
             val newLane = if (xValue > 4) {
                 0 // Far Left
             } else if (xValue > 2) {
@@ -32,7 +30,7 @@ class TiltDetector (context: Context, private val tiltCallback: TiltCallback?) {
                 3 // Right-Mid
             }
 
-            // Trigger lane change if it’s different from the current lane
+
             if (newLane != currentLane) {
                 currentLane = newLane
                 when (currentLane) {

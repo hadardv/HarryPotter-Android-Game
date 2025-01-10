@@ -1,5 +1,6 @@
 package logic
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Handler
@@ -15,14 +16,18 @@ import kotlin.random.Random
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
+import android.widget.TextView
 
 
 class GameManager(private val gridLayout: GridLayout,
                   private val hearts: Array<AppCompatImageView>,
+                  private val main_TXT_score: TextView,
                   private val context: Context) {
 
     private var handler = Handler(Looper.getMainLooper())
     private var isGameRunning = true
+    var score = 0
+    private var snitch = 10
     private var lives = 3
     var harryLane = 2
     private val rows = 10
@@ -77,7 +82,9 @@ class GameManager(private val gridLayout: GridLayout,
                 if (!isGameRunning) return
 
                 moveVoldemortDown()
+                moveSnitchesDown()
                 newVoldemorts()
+                newSnitches()
 
                 handler.postDelayed(this,gameSpeed)
             }
@@ -157,6 +164,56 @@ class GameManager(private val gridLayout: GridLayout,
         }
     }
 
+    fun moveSnitchesDown() {
+        for (row in rows - 2 downTo 0) { // Start from the second last row and move up
+            for (col in 0 until cols) {
+                val currentCell = grid[row][col]
+                if (currentCell.tag == "snitch") {
+                    val newCell = grid[row + 1][col]
+
+                    if (newCell.tag == "snitch") {
+                        continue
+                    }
+
+
+                    // if a snitch reaches row 7
+                    if (row + 1 == rows - 1) {
+                        // Clear snitch if it's at row 7
+                        currentCell.apply {
+                            visibility = View.INVISIBLE
+                            setImageResource(0)
+                            tag = null
+                        }
+
+                        newCell.apply {
+                            tag = "snitch"
+                        }
+                        checkCollision()
+                        newCell.apply {
+                            tag = null
+                        }
+                        continue
+                    }
+
+                    // Move snitch down
+                    newCell.apply {
+                        visibility = View.VISIBLE
+                        setImageResource(R.drawable.snitch)
+                        tag = "snitch"
+                    }
+
+                    // Clear old position
+                    currentCell.apply {
+                        visibility = View.INVISIBLE
+                        setImageResource(0)
+                        tag = null
+                    }
+
+                }
+            }
+        }
+    }
+
     // bring down voldemorts randomly
     fun newVoldemorts() {
         val voldemortCount = Random.nextInt(0, 2)
@@ -165,8 +222,9 @@ class GameManager(private val gridLayout: GridLayout,
         for (col in positions) {
             val topCell = grid[0][col]
 
-            // Skip if there's already a Voldemort in this cell
-            if (topCell.tag == "voldemort") continue
+            // Skip if there's already a snitch or voldemort in this cell
+            if (topCell.tag == "snitch" || topCell.tag == "voldemort") continue
+
 
             topCell.apply {
                 visibility = View.VISIBLE
@@ -176,7 +234,27 @@ class GameManager(private val gridLayout: GridLayout,
         }
     }
 
-//checking if voldemort and harry collied
+    // bring down snitches randomly
+    fun newSnitches() {
+        val snitchesCount = Random.nextInt(0, 2)
+        val positions = (0 until cols).shuffled().take(snitchesCount)
+
+        for (col in positions) {
+            val topCell = grid[0][col]
+
+            // Skip if there's already a snitch or voldemort in this cell
+            if (topCell.tag == "snitch" || topCell.tag == "voldemort") continue
+
+            topCell.apply {
+                visibility = View.VISIBLE
+                setImageResource(R.drawable.snitch)
+                tag = "snitch"
+            }
+        }
+
+    }
+
+//checking if voldemort and harry collied or harry and snitch
     fun checkCollision() {
         val harryCell = grid[rows - 1][harryLane]
         // Check if the Voldemort's tag is in Harry's lane
@@ -198,8 +276,29 @@ class GameManager(private val gridLayout: GridLayout,
             if (lives <= 0) {
                 endGame()
             }
+        } else if (harryCell.tag == "snitch") {
+            score += snitch
+            updateScore()
+
+
+            harryCell.apply {
+                tag = null
+            }
+
+            harryCell.apply {
+                visibility = View.VISIBLE
+                setImageResource(R.drawable.harry)
+            }
         }
     }
+
+
+    @SuppressLint("SetTextI18n")
+    private fun updateScore() {
+        main_TXT_score.text = score.toString().padStart(3, '0')
+    }
+
+
 
     private fun updateLives() {
         for (i in hearts.indices) {
@@ -230,8 +329,7 @@ class GameManager(private val gridLayout: GridLayout,
             vibrator.vibrate(vibrationEffect)
         }
     }
-    //to start the game all over again after voldemort killed harry we reset the game's settings
-
+    //to start the game all over again after voldemort killed harry we reset the game settings
     private fun resetGame() {
         for (row in 0 until rows) {
             for (col in 0 until cols) {
@@ -249,7 +347,9 @@ class GameManager(private val gridLayout: GridLayout,
         }
 
         lives = 3
+        score = 0
         updateLives()
+        updateScore()
         isGameRunning = true
         startGame()
     }
