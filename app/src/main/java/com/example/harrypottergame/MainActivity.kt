@@ -72,12 +72,6 @@ class MainActivity : AppCompatActivity(), TiltCallback {
     }
 
 
-    override fun onDestroy() {
-        super.onDestroy()
-        tiltDetector?.stop()
-    }
-
-
     private fun findViews() {
         main_BTN_leftArrow = findViewById(R.id.main_BTN_leftArrow)
         main_BTN_rightArrow = findViewById(R.id.main_BTN_rightArrow)
@@ -104,5 +98,16 @@ class MainActivity : AppCompatActivity(), TiltCallback {
             }
         }
     }
+
+    override fun onStop() {
+        super.onStop()
+        gameManager.stopGame()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        gameManager.stopGame()
+    }
+
 
 }

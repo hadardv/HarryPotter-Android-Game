@@ -2,7 +2,9 @@ package logic
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.os.Build
+import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
@@ -17,6 +19,10 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 import android.widget.TextView
+import com.example.harrypottergame.RecordsActivity
+import com.google.firebase.crashlytics.buildtools.reloc.com.google.common.reflect.TypeToken
+import com.google.gson.Gson
+import Record
 
 
 class GameManager(private val gridLayout: GridLayout,
@@ -40,6 +46,7 @@ class GameManager(private val gridLayout: GridLayout,
     init {
         initializeGrid()
     }
+
 
     // Initializing the game grid with harry in the middle lane and putting imageView in each cell of the matrix
     private fun initializeGrid() {
@@ -307,14 +314,36 @@ class GameManager(private val gridLayout: GridLayout,
     }
 
     private fun endGame() {
-        isGameRunning = false
-        handler.removeCallbacksAndMessages(null)
+        stopGame()
         Toast.makeText(context, "Voldemort killed Harry :(", Toast.LENGTH_SHORT).show()
+        saveScore(score)
+        //resetGame()
+        val intent = Intent(context, RecordsActivity::class.java)
+        context.startActivity(intent)
 
-        handler.postDelayed({
-            resetGame()
-        }, 2000)
     }
+
+    private fun saveScore(score: Int) {
+        val sharedPreferences = context.getSharedPreferences("game_records", Context.MODE_PRIVATE)
+        val scoresJson = sharedPreferences.getString("scores", "[]") ?: "[]"
+        val scoresList: MutableList<Record> = Gson().fromJson(scoresJson, object : TypeToken<MutableList<Record>>() {}.type)
+
+        val randomLatitude = Random.nextDouble(-90.0, 90.0)
+        val randomLongitude = Random.nextDouble(-180.0, 180.0)
+        val newRecord = Record(score, randomLatitude, randomLongitude)
+
+        scoresList.add(newRecord)
+        scoresList.sortByDescending { it.score }
+
+        if (scoresList.size > 10) {
+            scoresList.subList(10, scoresList.size).clear()
+        }
+
+        val updatedScoresJson = Gson().toJson(scoresList)
+        sharedPreferences.edit().putString("scores", updatedScoresJson).apply()
+    }
+
+
 
     private fun triggerVibration() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // API 31 and above
@@ -353,4 +382,12 @@ class GameManager(private val gridLayout: GridLayout,
         isGameRunning = true
         startGame()
     }
+
+    fun stopGame() {
+        isGameRunning = false
+        handler.removeCallbacksAndMessages(null) // Stops all pending game tasks
+    }
 }
+
+
+
