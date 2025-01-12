@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
@@ -23,6 +22,15 @@ import com.example.harrypottergame.RecordsActivity
 import com.google.firebase.crashlytics.buildtools.reloc.com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 import Record
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import android.util.Log
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.Priority
+import android.media.MediaPlayer
+
 
 
 class GameManager(private val gridLayout: GridLayout,
@@ -39,6 +47,8 @@ class GameManager(private val gridLayout: GridLayout,
     private val rows = 10
     private val cols = 5
     private var gameSpeed: Long = 800
+    private var fusedLocationClient: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
+
     private val grid: Array<Array<AppCompatImageView>> = Array(rows) {
         Array(cols) { AppCompatImageView(context) }
     }
@@ -266,6 +276,7 @@ class GameManager(private val gridLayout: GridLayout,
         val harryCell = grid[rows - 1][harryLane]
         // Check if the Voldemort's tag is in Harry's lane
         if (harryCell.tag == "voldemort") {
+            playCrashSound()
             lives--
             updateLives()
             triggerVibration()
@@ -284,6 +295,7 @@ class GameManager(private val gridLayout: GridLayout,
                 endGame()
             }
         } else if (harryCell.tag == "snitch") {
+            playSnitchSound()
             score += snitch
             updateScore()
 
@@ -299,6 +311,20 @@ class GameManager(private val gridLayout: GridLayout,
         }
     }
 
+    private fun playCrashSound() {
+        val mediaPlayer = MediaPlayer.create(context, R.raw.crash_sound)
+        mediaPlayer.setOnCompletionListener { it.release() }  // Release the media player after the sound is played
+        mediaPlayer.start()
+    }
+
+    private fun playSnitchSound() {
+        val mediaPlayer = MediaPlayer.create(context, R.raw.snitch_catch)
+        mediaPlayer.setOnCompletionListener { it.release() }  // Release the media player after the sound is played
+        mediaPlayer.start()
+    }
+
+
+
 
     @SuppressLint("SetTextI18n")
     private fun updateScore() {
@@ -313,36 +339,72 @@ class GameManager(private val gridLayout: GridLayout,
         }
     }
 
+    @SuppressLint("MissingPermission")
     private fun endGame() {
         stopGame()
         Toast.makeText(context, "Voldemort killed Harry :(", Toast.LENGTH_SHORT).show()
-        saveScore(score)
-        //resetGame()
+
+        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            if (location != null) {
+                saveScore(score, location.latitude, location.longitude)
+            } else {
+                // Request a new location if the last known location is null
+                requestLocationUpdate()
+            }
+        }.addOnFailureListener {
+            // Save default coordinates if location retrieval fails
+            saveScore(score, 0.0, 0.0)
+        }
+
         val intent = Intent(context, RecordsActivity::class.java)
         context.startActivity(intent)
-
     }
 
-    private fun saveScore(score: Int) {
+
+
+    @SuppressLint("MissingPermission")
+    private fun requestLocationUpdate() {
+        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000L)
+            .setMinUpdateIntervalMillis(500L)
+            .build()
+
+        fusedLocationClient.requestLocationUpdates(
+            locationRequest,
+            object : LocationCallback() {
+                override fun onLocationResult(locationResult: LocationResult) {
+                    fusedLocationClient.removeLocationUpdates(this)
+                    val newLocation = locationResult.lastLocation
+                    if (newLocation != null) {
+                        saveScore(score, newLocation.latitude, newLocation.longitude)
+                    }
+                }
+            },
+            Looper.getMainLooper()
+        )
+    }
+
+    private fun saveScore(score: Int, latitude: Double, longitude: Double) {
         val sharedPreferences = context.getSharedPreferences("game_records", Context.MODE_PRIVATE)
         val scoresJson = sharedPreferences.getString("scores", "[]") ?: "[]"
         val scoresList: MutableList<Record> = Gson().fromJson(scoresJson, object : TypeToken<MutableList<Record>>() {}.type)
 
-        val randomLatitude = Random.nextDouble(-90.0, 90.0)
-        val randomLongitude = Random.nextDouble(-180.0, 180.0)
-        val newRecord = Record(score, randomLatitude, randomLongitude)
-
+        // Add the new record
+        val newRecord = Record(score, latitude, longitude)
         scoresList.add(newRecord)
-        scoresList.sortByDescending { it.score }
 
+        // Sort and keep only the top 10 scores
+        scoresList.sortByDescending { it.score }
         if (scoresList.size > 10) {
             scoresList.subList(10, scoresList.size).clear()
         }
 
+        Log.d("GameManager", "Saving Score: $score at Location: [$latitude, $longitude]")
+
+
+        // Save the updated list back to SharedPreferences
         val updatedScoresJson = Gson().toJson(scoresList)
         sharedPreferences.edit().putString("scores", updatedScoresJson).apply()
     }
-
 
 
     private fun triggerVibration() {
@@ -357,30 +419,6 @@ class GameManager(private val gridLayout: GridLayout,
             val vibrationEffect = VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE)
             vibrator.vibrate(vibrationEffect)
         }
-    }
-    //to start the game all over again after voldemort killed harry we reset the game settings
-    private fun resetGame() {
-        for (row in 0 until rows) {
-            for (col in 0 until cols) {
-                grid[row][col].apply {
-                    visibility = View.INVISIBLE
-                    setImageResource(0)
-                    tag = null
-                }
-            }
-        }
-        harryLane = 1
-        grid[rows - 1][harryLane].apply {
-            visibility = View.VISIBLE
-            setImageResource(R.drawable.harry)
-        }
-
-        lives = 3
-        score = 0
-        updateLives()
-        updateScore()
-        isGameRunning = true
-        startGame()
     }
 
     fun stopGame() {

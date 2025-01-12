@@ -1,12 +1,16 @@
 package com.example.harrypottergame
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.GridLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.core.app.ActivityCompat
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import interfaces.TiltCallback
 import logic.GameManager
@@ -21,7 +25,6 @@ class MainActivity : AppCompatActivity(), TiltCallback {
     private lateinit var gridLayout: GridLayout
     private lateinit var main_TXT_score: TextView
 
-
     private var tiltDetector: TiltDetector? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,14 +35,34 @@ class MainActivity : AppCompatActivity(), TiltCallback {
             Log.e("Unhandled Exception", "Exception in thread: ${thread.name}", throwable)
         }
 
-        val mode = intent.getStringExtra("mode") ?: "arrow"
-        val speed = intent.getStringExtra("speed") ?: "slow"
-
         findViews()
         initViews()
 
+        // Check and request location permissions
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
+        } else {
+            startGameBasedOnMode()
+        }
+    }
 
-        gameManager = GameManager(gridLayout, hearts,main_TXT_score, this)
+
+    // Handle the result of the permission request
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 1 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            startGameBasedOnMode()
+        } else {
+            Toast.makeText(this, "Location permission denied! The game will continue without location data.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
+    private fun startGameBasedOnMode() {
+        val mode = intent.getStringExtra("mode") ?: "arrow"
+        val speed = intent.getStringExtra("speed") ?: "slow"
+
+        gameManager = GameManager(gridLayout, hearts, main_TXT_score, this)
         if (mode == "arrow") {
             gameManager.setSpeed(if (speed == "fast") 500 else 800)
             gameManager.startGame()
@@ -47,11 +70,9 @@ class MainActivity : AppCompatActivity(), TiltCallback {
             main_BTN_rightArrow.visibility = View.GONE
             main_BTN_leftArrow.visibility = View.GONE
 
-            // if the selected mode is sensor mode, the sensor detection begin working
-            tiltDetector = TiltDetector(this,this)
+            tiltDetector = TiltDetector(this, this)
             tiltDetector?.start()
             gameManager.startGame()
-
         }
     }
 
@@ -71,19 +92,16 @@ class MainActivity : AppCompatActivity(), TiltCallback {
         gameManager.moveHarry(2) // Move Harry to the center lane
     }
 
-
     private fun findViews() {
         main_BTN_leftArrow = findViewById(R.id.main_BTN_leftArrow)
         main_BTN_rightArrow = findViewById(R.id.main_BTN_rightArrow)
         hearts = arrayOf(
             findViewById(R.id.main_IMG_heart1),
-
             findViewById(R.id.main_IMG_heart2),
             findViewById(R.id.main_IMG_heart3)
         )
         gridLayout = findViewById(R.id.main_grid)
         main_TXT_score = findViewById(R.id.main_TXT_score)
-
     }
 
     private fun initViews() {
@@ -108,6 +126,4 @@ class MainActivity : AppCompatActivity(), TiltCallback {
         super.onDestroy()
         gameManager.stopGame()
     }
-
-
 }

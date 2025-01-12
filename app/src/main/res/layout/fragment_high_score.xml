@@ -14,6 +14,7 @@
         android:textSize="24sp"
         android:textColor="@android:color/white"
         android:paddingBottom="8dp"
+        android:layout_marginTop="40dp"
         android:gravity="center" />
 
     <TextView
@@ -22,7 +23,7 @@
         android:layout_height="wrap_content"
         android:textColor="@android:color/white"
         android:padding="8dp"
-        android:text="Loading scores..."
+        android:text="scores..."
         android:gravity="start" />
 
 </LinearLayout>
