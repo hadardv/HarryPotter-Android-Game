@@ -12,10 +12,11 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import Record
+import com.example.harrypottergame.Record
 
 class MapFragment : Fragment(), OnMapReadyCallback {
 
@@ -38,32 +39,47 @@ class MapFragment : Fragment(), OnMapReadyCallback {
   googleMap = map
 
   // Load the top scores from SharedPreferences
-  val sharedPreferences = requireContext().getSharedPreferences("game_records", Context.MODE_PRIVATE)
+  val sharedPreferences =
+   requireContext().getSharedPreferences("game_records", Context.MODE_PRIVATE)
   val scoresJson = sharedPreferences.getString("scores", "[]") ?: "[]"
-  val scoresList: List<Record> = Gson().fromJson(scoresJson, object : TypeToken<List<Record>>() {}.type)
+  val scoresList: List<Record> =
+   Gson().fromJson(scoresJson, object : TypeToken<List<Record>>() {}.type)
 
   if (scoresList.isNotEmpty()) {
+   val boundsBuilder = LatLngBounds.Builder()
+   var hasValidCoordinates = false
+
+   // Add markers for each record
    for (record in scoresList) {
     val latitude = record.latitude
     val longitude = record.longitude
 
+    // Skip markers with invalid (0, 0) coordinates
     if (latitude != 0.0 || longitude != 0.0) {
      val location = LatLng(latitude, longitude)
-     googleMap?.addMarker(MarkerOptions().position(location).title("Score: ${record.score}"))
+     googleMap?.addMarker(
+      MarkerOptions()
+       .position(location)
+       .title("Score: ${record.score}")
+     )
+     boundsBuilder.include(location)
+     hasValidCoordinates = true
     }
    }
 
-   // Focus the camera on the first valid location
-   val firstValidRecord = scoresList.firstOrNull { it.latitude != 0.0 && it.longitude != 0.0 }
-   if (firstValidRecord != null) {
-    val targetLocation = LatLng(firstValidRecord.latitude, firstValidRecord.longitude)
-    googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(targetLocation, 8f))
-   } else {
-    googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(0.0, 0.0), 1f))
+   // Adjust the camera to show all markers
+   if (hasValidCoordinates) {
+    val bounds = boundsBuilder.build()
+    googleMap?.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100)) // Padding = 100
    }
   }
  }
 
+ // Function to move the map camera to a specific location
+ fun focusOnLocation(latitude: Double, longitude: Double) {
+  val location = LatLng(latitude, longitude)
+  googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 10f))
+ }
 
  override fun onResume() {
   super.onResume()

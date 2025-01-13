@@ -6,17 +6,24 @@
     android:background="@color/background">
 
     <!-- High Scores Section -->
-    <FrameLayout
-        android:id="@+id/records_FRAME_scores"
+
+
+    <ListView
+        android:id="@+id/records_LIST_scores"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="30dp"
+        />
+
+    <!-- Google Map Section -->
+    <fragment
+        android:id="@+id/records_FRAME_map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />
 
-    <!-- Google Map Section -->
-    <FrameLayout
-        android:id="@+id/records_FRAME_map"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+
 
 </LinearLayout>

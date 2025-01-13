@@ -36,7 +36,7 @@
 
         <activity
             android:name=".RecordsActivity"
-            android:exported="true" />
+            android:exported="true"/>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

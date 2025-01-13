@@ -21,7 +21,7 @@ import android.widget.TextView
 import com.example.harrypottergame.RecordsActivity
 import com.google.firebase.crashlytics.buildtools.reloc.com.google.common.reflect.TypeToken
 import com.google.gson.Gson
-import Record
+import com.example.harrypottergame.Record
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import android.util.Log

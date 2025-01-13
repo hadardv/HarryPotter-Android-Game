@@ -58,6 +58,7 @@ class MainActivity : AppCompatActivity(), TiltCallback {
     }
 
 
+
     private fun startGameBasedOnMode() {
         val mode = intent.getStringExtra("mode") ?: "arrow"
         val speed = intent.getStringExtra("speed") ?: "slow"

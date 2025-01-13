@@ -11,10 +11,11 @@ import androidx.fragment.app.Fragment
 import com.example.harrypottergame.R
 import com.google.firebase.crashlytics.buildtools.reloc.com.google.common.reflect.TypeToken
 import com.google.gson.Gson
-import Record
+import com.example.harrypottergame.Record
 
 class HighScoreFragment : Fragment() {
 
+    @SuppressLint("DefaultLocale")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
