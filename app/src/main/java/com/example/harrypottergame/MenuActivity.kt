@@ -13,6 +13,7 @@ class MenuActivity : AppCompatActivity() {
     private lateinit var menu_BTN_arrowMode: Button
     private lateinit var menu_BTN_slow: Button
     private lateinit var menu_BTN_fast: Button
+    private lateinit var menu_BTN_recrds: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         
@@ -28,6 +29,7 @@ class MenuActivity : AppCompatActivity() {
         menu_BTN_arrowMode = findViewById(R.id.menu_BTN_arrowMode)
         menu_BTN_slow = findViewById(R.id.menu_BTN_slow)
         menu_BTN_fast = findViewById(R.id.menu_BTN_fast)
+        menu_BTN_recrds = findViewById(R.id.menu_BTN_records)
     }
 
     private fun initViews() {
@@ -58,6 +60,16 @@ class MenuActivity : AppCompatActivity() {
             intent.putExtra("speed", "fast")
             startActivity(intent)
         }
+
+        menu_BTN_recrds.setOnClickListener {
+            try {
+                val intent = Intent(this, RecordsActivity::class.java)
+                startActivity(intent)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+
     }
 
 

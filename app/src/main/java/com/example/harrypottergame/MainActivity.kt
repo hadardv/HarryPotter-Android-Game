@@ -25,6 +25,7 @@ class MainActivity : AppCompatActivity(), TiltCallback {
     private lateinit var gridLayout: GridLayout
     private lateinit var main_TXT_score: TextView
 
+
     private var tiltDetector: TiltDetector? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {

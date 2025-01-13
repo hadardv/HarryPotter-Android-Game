@@ -19,16 +19,25 @@
         android:paddingTop="50dp"
         android:layout_marginBottom="32dp"
         />
-<!--Arrow Mode-->
+
     <Button
-        android:id="@+id/menu_BTN_sensorMode"
+        android:id="@+id/menu_BTN_records"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/menu_TXT_title"
         android:layout_centerInParent="true"
         android:layout_marginTop="16dp"
+        android:text="Records" />
+<!--Sensor Mode-->
+    <Button
+        android:id="@+id/menu_BTN_sensorMode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/menu_BTN_records"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="16dp"
         android:text="Sensors Mode" />
-
+    <!--Arrow Mode-->
     <Button
         android:id="@+id/menu_BTN_arrowMode"
         android:layout_width="wrap_content"
