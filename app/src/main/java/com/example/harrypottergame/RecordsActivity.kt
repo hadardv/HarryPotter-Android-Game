@@ -11,7 +11,6 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import adapters.ScoresAdapter
 import android.content.Context
-import com.example.harrypottergame.Record
 import com.google.android.gms.maps.model.MarkerOptions
 
 

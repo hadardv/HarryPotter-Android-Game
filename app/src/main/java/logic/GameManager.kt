@@ -130,7 +130,7 @@ class GameManager(private val gridLayout: GridLayout,
     }
 
 
-    // a function to move an existing voldemort image one cell down until row 7
+    // a function to move an existing voldemort image one cell down until row 9
     fun moveVoldemortDown() {
         for (row in rows - 2 downTo 0) { // Start from the second last row and move up
             for (col in 0 until cols) {
@@ -143,9 +143,9 @@ class GameManager(private val gridLayout: GridLayout,
                     }
 
 
-                    // if voldemort reaches row 7
+                    // if voldemort reaches row 9
                     if (row + 1 == rows - 1) {
-                        // Clear voldemort if it's at row 7
+                        // Clear voldemort if it's at row 9
                         currentCell.apply {
                             visibility = View.INVISIBLE
                             setImageResource(0)
@@ -180,7 +180,7 @@ class GameManager(private val gridLayout: GridLayout,
             }
         }
     }
-
+//A function to move each snitch on cell down until row 9
     fun moveSnitchesDown() {
         for (row in rows - 2 downTo 0) { // Start from the second last row and move up
             for (col in 0 until cols) {
@@ -193,9 +193,9 @@ class GameManager(private val gridLayout: GridLayout,
                     }
 
 
-                    // if a snitch reaches row 7
+                    // if a snitch reaches row 9
                     if (row + 1 == rows - 1) {
-                        // Clear snitch if it's at row 7
+                        // Clear snitch if it's at row 9
                         currentCell.apply {
                             visibility = View.INVISIBLE
                             setImageResource(0)
@@ -271,7 +271,7 @@ class GameManager(private val gridLayout: GridLayout,
 
     }
 
-//checking if voldemort and harry collied or harry and snitch
+//checking if voldemort and harry collied or harry and a snitch
     fun checkCollision() {
         val harryCell = grid[rows - 1][harryLane]
         // Check if the Voldemort's tag is in Harry's lane
@@ -312,7 +312,7 @@ class GameManager(private val gridLayout: GridLayout,
     }
 
     private fun playCrashSound() {
-        val mediaPlayer = MediaPlayer.create(context, R.raw.crash_sound)
+        val mediaPlayer = MediaPlayer.create(context, R.raw.avrakadabra)
         mediaPlayer.setOnCompletionListener { it.release() }  // Release the media player after the sound is played
         mediaPlayer.start()
     }
@@ -355,7 +355,7 @@ class GameManager(private val gridLayout: GridLayout,
             // Save default coordinates if location retrieval fails
             saveScore(score, 0.0, 0.0)
         }
-
+        //Navigate to the record screen
         val intent = Intent(context, RecordsActivity::class.java)
         context.startActivity(intent)
     }
@@ -397,9 +397,6 @@ class GameManager(private val gridLayout: GridLayout,
         if (scoresList.size > 10) {
             scoresList.subList(10, scoresList.size).clear()
         }
-
-        Log.d("GameManager", "Saving Score: $score at Location: [$latitude, $longitude]")
-
 
         // Save the updated list back to SharedPreferences
         val updatedScoresJson = Gson().toJson(scoresList)

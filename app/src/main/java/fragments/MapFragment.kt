@@ -70,7 +70,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
    // Adjust the camera to show all markers
    if (hasValidCoordinates) {
     val bounds = boundsBuilder.build()
-    googleMap?.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100)) // Padding = 100
+    googleMap?.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100))
    }
   }
  }
